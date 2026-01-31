@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# DuckDB / Data
+data/
+*.db
+*.duckdb
+*.csv
+!data/.gitkeep
+
+# IDE
+.idea/
+.vscode/
