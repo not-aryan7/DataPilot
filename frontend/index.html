@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataPilot - AI-Powered Data Analysis</title>
+  <meta name="description" content="Analyze your data with natural language queries powered by AI and DuckDB">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <!-- Background Effects -->
+  <div class="stars" id="stars"></div>
+  <div class="grid-overlay"></div>
+  <div class="gradient-overlay"></div>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <span class="logo-text">DataPilot</span>
+        </div>
+      </div>
+
+      <button class="new-analysis-btn" id="newAnalysisBtn">
+        <span class="btn-icon">+</span>
+        New Analysis
+        <span class="shortcut">⌘N</span>
+      </button>
+
+      <div class="sidebar-section">
+        <h3 class="section-title">Datasets</h3>
+        <ul class="dataset-list" id="datasetList">
+          <li class="dataset-item placeholder">
+            <span class="file-icon">📄</span>
+            Upload a CSV to start
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="section-title">Recent Queries</h3>
+        <ul class="query-list" id="queryList">
+          <li class="query-item placeholder">
+            <span class="file-icon">🕐</span>
+            No queries yet
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=DataPilot" alt="User">
+          </div>
+          <div class="user-details">
+            <span class="user-name">Guest User</span>
+            <span class="user-plan">FREE PLAN</span>
+          </div>
+          <button class="settings-btn">⚙️</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="main-header">
+        <div class="header-left">
+          <span class="engine-badge">DuckDB Engine</span>
+          <span class="header-separator">/</span>
+          <span class="dataset-name" id="currentDataset">No dataset selected</span>
+        </div>
+        <div class="header-right">
+          <button class="icon-btn" title="Share">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          </button>
+          <button class="icon-btn" title="Download">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat Area -->
+      <div class="chat-area" id="chatArea">
+        <div class="welcome-state" id="welcomeState">
+          <div class="welcome-icon">📊</div>
+          <h2>Welcome to DataPilot</h2>
+          <p>Upload a CSV file to start analyzing your data with natural language queries</p>
+          <label class="upload-zone" id="uploadZone">
+            <input type="file" id="fileInput" accept=".csv" hidden>
+            <div class="upload-content">
+              <span class="upload-icon">📁</span>
+              <span>Drop CSV here or click to upload</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Floating Input Area -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <div class="input-glow"></div>
+          <div class="input-container">
+            <span class="input-icon">📎</span>
+            <input type="text" class="question-input" id="questionInput"
+              placeholder="Ask DataPilot about your dataset..." disabled>
+            <button class="voice-btn" title="Voice input">🎤</button>
+            <button class="send-btn" id="sendBtn" disabled title="Send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M12 19V5M5 12l7-7 7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Status -->
+      <footer class="status-bar">
+        <span class="status-dot"></span>
+        <span>DuckDB OLAP Engine</span>
+        <span class="status-separator">•</span>
+        <span class="latency" id="latency">—</span>
+        <span>Analysis Latency</span>
+      </footer>
+    </main>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>

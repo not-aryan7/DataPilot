@@ -43,12 +43,3 @@ def ingest_csv(file_path: Path, table_name: str = None) -> dict:
         }
     finally:
         conn.close()
-
-def get_schema(table_name: str) -> list[dict]:
-    """Get schema for a table."""
-    conn = get_connection()
-    try:
-        result = conn.execute(f"DESCRIBE {table_name}").fetchall()
-        return [{"column": row[0], "type": row[1]} for row in result]
-    finally:
-        conn.close()
