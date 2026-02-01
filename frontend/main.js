@@ -240,12 +240,17 @@ function updateDatasetList() {
   }
 
   datasetList.innerHTML = datasets.map((ds, index) => `
-    <li class="dataset-item ${ds.id === currentDataset?.id ? 'active' : ''}" 
-        onclick="selectDataset(${index})">
-      <span class="file-icon">${getIcon('file-spreadsheet', 16)}</span>
-      ${ds.name}
+    <li class="dataset-item ${ds.id === currentDataset?.id ? 'active' : ''}">
+      <span class="item-content" onclick="selectDataset(${index})">
+        <i data-lucide="file-spreadsheet" class="file-icon"></i>
+        <span class="item-name">${ds.name}</span>
+      </span>
+      <button class="delete-btn" onclick="event.stopPropagation(); deleteDataset(${index})" title="Delete dataset">
+        <i data-lucide="trash-2"></i>
+      </button>
     </li>
   `).join('');
+  lucide.createIcons();
 }
 
 window.selectDataset = function (index) {
@@ -277,9 +282,18 @@ function updateQueryList() {
     return;
   }
 
-  queryList.innerHTML = recentQueries.map(q => `
-    <li class="query-item">${q}</li>
+  queryList.innerHTML = recentQueries.map((q, index) => `
+    <li class="query-item">
+      <span class="item-content" onclick="useSuggestion('${q.replace(/'/g, "\\'")}')"> 
+        <i data-lucide="message-square" class="file-icon"></i>
+        <span class="item-name">${q}</span>
+      </span>
+      <button class="delete-btn" onclick="event.stopPropagation(); deleteQuery(${index})" title="Delete query">
+        <i data-lucide="x"></i>
+      </button>
+    </li>
   `).join('');
+  lucide.createIcons();
 }
 
 function hideWelcome() {
@@ -585,3 +599,46 @@ function saveToLocalStorage() {
   // localStorage.setItem('datapilot_datasets', JSON.stringify(datasets)); // No longer syncing datasets
   localStorage.setItem('datapilot_queries', JSON.stringify(recentQueries));
 }
+
+// Delete dataset handler
+window.deleteDataset = async function (index) {
+  const dataset = datasets[index];
+  if (!dataset) return;
+
+  if (!confirm(`Delete dataset "${dataset.name}"? This cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/datasets/${dataset.id}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok || response.status === 404) {
+      // Remove from local array
+      datasets.splice(index, 1);
+
+      // Clear current if it was deleted
+      if (currentDataset?.id === dataset.id) {
+        currentDataset = datasets.length > 0 ? datasets[0] : null;
+        currentDatasetEl.textContent = currentDataset?.name || 'No dataset selected';
+      }
+
+      updateDatasetList();
+    } else {
+      showError('Failed to delete dataset');
+    }
+  } catch (e) {
+    console.error('Delete dataset error:', e);
+    // Still remove locally even if API fails
+    datasets.splice(index, 1);
+    updateDatasetList();
+  }
+};
+
+// Delete query handler
+window.deleteQuery = function (index) {
+  recentQueries.splice(index, 1);
+  saveToLocalStorage();
+  updateQueryList();
+};

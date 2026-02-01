@@ -147,3 +147,31 @@ async def get_datasets(session: Session = Depends(get_session)):
             "created_at": d.created_at
         })
     return response
+
+@router.delete("/datasets/{dataset_id}")
+async def delete_dataset(dataset_id: str, session: Session = Depends(get_session)):
+    """Delete a dataset by ID."""
+    from app.core.database import get_connection
+    
+    # Find and delete from SQLite
+    dataset = session.exec(select(Dataset).where(Dataset.id == dataset_id)).first()
+    if not dataset:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    
+    table_name = dataset.table_name_duckdb
+    
+    # Delete from SQLite
+    session.delete(dataset)
+    session.commit()
+    
+    # Try to drop table from DuckDB
+    try:
+        conn = get_connection()
+        conn.execute(f"DROP TABLE IF EXISTS {table_name}")
+        conn.close()
+    except Exception as e:
+        # Log but don't fail - SQLite record is already deleted
+        print(f"Warning: Could not drop DuckDB table {table_name}: {e}")
+    
+    return {"message": f"Dataset {dataset_id} deleted successfully"}
+
