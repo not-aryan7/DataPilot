@@ -25,7 +25,6 @@ class SQLGenerator:
     def __init__(
         self,
         schema_docs: list[str],
-        model_name: str | None = None,
         llm_instance: LocalLLM | None = None
     ):
         logger.info("[SQLGenerator] Initializing...")
@@ -37,7 +36,7 @@ class SQLGenerator:
         if llm_instance:
             self.llm = llm_instance
         else:
-            self.llm = LocalLLM(model_name=model_name)
+            self.llm = LocalLLM()
 
         logger.info("[SQLGenerator] Ready.")
 

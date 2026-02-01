@@ -1,6 +1,6 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
+import re
 
 class LocalLLM:
     """
@@ -10,7 +10,7 @@ class LocalLLM:
 
     def __init__(
         self,
-        model_name: str = "mistralai/Mistral-7B-Instruct-v0.2",
+        model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         device: str | None = None
     ):
         # auto choose GPU if available
@@ -32,12 +32,20 @@ class LocalLLM:
         self.model.eval()
 
     # remove markdown / explanations
+    
+
     def _clean_sql(self, text: str) -> str:
+        # remove markdown fences
         text = text.replace("```sql", "").replace("```", "")
-        for stop in ["Explanation", "Example", "#"]:
-            if stop in text:
-                text = text.split(stop)[0]
+
+        # find first SQL statement ending with ;
+        match = re.search(r"(SELECT[\s\S]*?;)", text, re.IGNORECASE)
+
+        if match:
+            return match.group(1).strip()
+
         return text.strip()
+
 
     def generate(self, prompt: str, max_tokens: int = 256) -> str:
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
