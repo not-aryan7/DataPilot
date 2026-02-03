@@ -91,28 +91,28 @@ The focus was keeping everything local, simple, and fast.
 
 ### This project was mainly about learning:
 
-designing APIs
+- designing APIs
 
-handling file ingestion
+- handling file ingestion
 
-working with analytical databases
+- working with analytical databases
 
-building text-to-SQl systems with LLMs
+- building text-to-SQl systems with LLMs
 
-connecting backend + frontend cleanly
+- connecting backend + frontend cleanly
 
-building small end-to-end products
+- building small end-to-end products
 
 
 Notes
 
-runs fully local
+- runs fully local
 
-designed for small/medium datasets
+-designed for small/medium datasets
 
-not meant for production scale
+-not meant for production scale
 
-SELECT queries only for safety
+-SELECT queries only for safety
 
 ## Run locally
 
