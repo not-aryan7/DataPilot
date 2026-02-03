@@ -113,27 +113,68 @@ frontend/   UI + charts
 tests_rag/  model tests  
 
 ---
+## 🚀 Run Locally
 
-## 🚀 Run locally
+### 1. Clone the repo
+git clone https://github.com/<your-username>/DataPilot.git
+cd DataPilot
 
-Backend
+
+### 2. Backend (FastAPI + DuckDB)
+
+Create virtual environment
 
 python -m venv venv
-venv\Scripts\activate      # Windows
+
+Activate
+
+Windows
+venv\Scripts\activate
+
+macOS / Linux
+source venv/bin/activate
+
+Install dependencies
+
 pip install -r requirements.txt
+
+Start API
+
 uvicorn app.main:app --reload
 
-Server:
+Backend running at:
 http://127.0.0.1:8000
 
-Frontend
+Swagger docs:
+http://127.0.0.1:8000/docs
+
+
+### 3. Frontend (Vite)
+
+Open new terminal
 
 cd frontend
 npm install
 npm run dev
 
-Open:
+Frontend running at:
 http://localhost:5173
+
+
+### 4. Use the app
+
+• Open browser  
+• Upload CSV or Excel  
+• Ask questions in plain English  
+• Get SQL + tables + charts instantly
+
+
+### 5. Stop server
+
+CTRL + C (both terminals)
+deactivate   # exit virtual environment
+
+
 
 ---
 
