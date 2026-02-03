@@ -146,7 +146,7 @@ http://localhost:5173
 
 ---
 
-## 🧠 Why I built this
+## 🧠 Why We built this
 
 To practice building complete end-to-end AI systems that combine:
 
