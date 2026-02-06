@@ -14,8 +14,7 @@ def main():
     print("\n===== SQL Generator Test =====\n")
 
     generator = SQLGenerator(
-        schema_docs=schema_docs,
-        model_name="TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # fast dev model
+        schema_docs=schema_docs
     )
 
     questions = [

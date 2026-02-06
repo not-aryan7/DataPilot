@@ -59,12 +59,20 @@ async def ask_question(request: AskRequest):
         schema = [{"column": r[0], "type": r[1]} for r in schema_rows]
 
         # -----------------------
+        # Get sample data for prompt context
+        # -----------------------
+        sample_rows = conn.execute(
+            f"SELECT * FROM {request.dataset_id} LIMIT 3"
+        ).fetchdf().to_dict(orient="records")
+
+        # -----------------------
         # Generate SQL
         # -----------------------
         sql_query = generate_sql(
             question=request.question,
             schema=schema,
-            table_name=request.dataset_id
+            table_name=request.dataset_id,
+            sample_data=sample_rows
         )
 
         # Safety: SELECT only

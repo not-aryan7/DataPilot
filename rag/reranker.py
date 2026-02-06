@@ -15,9 +15,8 @@ class Reranker:
 
     def rerank(self, question: str, docs: list[str], top_k: int = 3):
         """
-        question: user query
-        docs: candidates from FAISS
-        returns: best top_k docs
+        Rerank FAISS candidates by relevance to the question.
+        Returns best top_k docs.
         """
 
         pairs = [(question, d) for d in docs]

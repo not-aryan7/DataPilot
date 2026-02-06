@@ -30,7 +30,7 @@ def build_schema_docs(schema: list[dict], table_name: str) -> list[str]:
     return docs
 
 
-def generate_sql(question: str, schema: list[dict], table_name: str) -> str:
+def generate_sql(question: str, schema: list[dict], table_name: str, sample_data: list[dict] | None = None) -> str:
     try:
         if table_name not in _generators:
             logger.info(f"Building retriever ONCE for {table_name}")
@@ -44,7 +44,7 @@ def generate_sql(question: str, schema: list[dict], table_name: str) -> str:
 
         generator = _generators[table_name]
 
-        return generator.generate(question)
+        return generator.generate(question, sample_data=sample_data)
 
     except Exception as e:
         logger.error(e)

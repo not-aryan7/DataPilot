@@ -1,38 +1,21 @@
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+import requests
 import re
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class LocalLLM:
     """
-    Minimal local LLM wrapper.
-    Takes a prompt and returns generated SQL text only.
+    Local LLM wrapper using Ollama.
+    Sends a prompt and returns generated SQL.
     """
 
-    def __init__(
-        self,
-        model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-        device: str | None = None
-    ):
-        # auto choose GPU if available
-        if device is None:
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+    def __init__(self, model_name: str = "qwen2.5-coder:7b"):
+        self.model = model_name
+        self.base_url = "http://localhost:11434"
 
-        self.device = device
-
-        print(f"[LLM] Loading {model_name} on {self.device}")
-
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-            device_map="auto"
-        )
-
-        self.model.eval()
-
-    # remove markdown / explanations
-    
+        logger.info(f"[LLM] Using Ollama model: {self.model}")
 
     def _clean_sql(self, text: str) -> str:
         # remove markdown fences
@@ -46,22 +29,22 @@ class LocalLLM:
 
         return text.strip()
 
-
     def generate(self, prompt: str, max_tokens: int = 256) -> str:
-        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        response = requests.post(
+            f"{self.base_url}/api/generate",
+            json={
+                "model": self.model,
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "num_predict": max_tokens,
+                    "temperature": 0.0,
+                    "repeat_penalty": 1.05,
+                },
+            },
+        )
 
-        with torch.no_grad():
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=max_tokens,
-                temperature=0.0,   # deterministic
-                do_sample=False,
-                repetition_penalty=1.05,
-                pad_token_id=self.tokenizer.eos_token_id
-            )
-
-        decoded = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        generated = decoded[len(prompt):].strip()
+        response.raise_for_status()
+        generated = response.json()["response"].strip()
 
         return self._clean_sql(generated)

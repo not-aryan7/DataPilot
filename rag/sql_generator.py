@@ -42,9 +42,9 @@ class SQLGenerator:
 
     # -------------------------------------------------------
 
-    def generate(self, question: str) -> str:
+    def generate(self, question: str, sample_data: list[dict] | None = None) -> str:
         """
-        Convert natural language question → SQL query string
+        Natural language question → SQL query string.
         """
 
         # 1️⃣ retrieve relevant schema
@@ -55,7 +55,7 @@ class SQLGenerator:
             return "-- Unable to generate SQL (no schema context)"
 
         # 2️⃣ build prompt
-        prompt = build_sql_prompt(question, docs)
+        prompt = build_sql_prompt(question, docs, sample_data=sample_data)
 
         # 3️⃣ generate SQL
         sql = self.llm.generate(prompt, max_tokens=256)

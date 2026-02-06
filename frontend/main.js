@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
 });
 
-// Helper to get helper SVG string
+// Get icon SVG string from lucide
 function getIcon(name, size = 16, className = '') {
   // Use lucide API if available
   if (window.lucide && window.lucide.icons[name]) {

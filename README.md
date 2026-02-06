@@ -1,50 +1,45 @@
-# 🚀 DataPilot
+# DataPilot
 
-**DataPilot** is a lightweight, local-first analytics engine that lets you query spreadsheets using plain English.
+A lightweight, local-first analytics engine that lets you query spreadsheets using plain English.
 
-Upload a CSV or Excel → ask a question → AI generates SQL → DuckDB executes → results show as tables **and charts**.
+Upload a CSV or Excel, ask a question, AI generates SQL, DuckDB executes, results show as tables and charts.
 
-Think:
-
-**ChatGPT + SQL + DuckDB + Charts**  
-All running locally. No cloud. No external APIs. No heavy BI tools.
+**ChatGPT + SQL + DuckDB + Charts** — all running locally. No cloud. No external APIs.
 
 ---
 
-## ✨ What you can ask
+## What you can ask
 
-Try queries like:
-
-- total revenue by year  
-- sum of sales by region  
-- average price per product  
-- top 5 rows  
-- group by month  
-- average talk time per agent  
+- total revenue by year
+- sum of sales by region
+- average price per product
+- what is the height of K2
+- top 5 rows
+- group by month
+- average talk time per agent
 
 ---
 
-## ⚙️ How it works
+## How it works
 
 ```
 file → pandas → DuckDB table
-question → embeddings → FAISS → reranker → prompt → LLM → SQL
+question → embeddings → FAISS → reranker → prompt + sample data → LLM → SQL
 SQL → DuckDB → JSON → table + charts
 ```
 
-Natural language in.  
-SQL + charts out.
+Natural language in. SQL + charts out.
 
 ---
 
-## 🧠 Architecture
+## Architecture
 
 ```
 Frontend (Vite + JS)
         ↓
 FastAPI Backend (REST API)
         ↓
-RAG SQL Engine (Embeddings + FAISS + Reranker + LLM)
+RAG SQL Engine (Embeddings + FAISS + Reranker + Ollama LLM)
         ↓
 Generated SQL
         ↓
@@ -55,7 +50,7 @@ Tables + Charts
 
 ---
 
-## 🧩 Tech Stack
+## Tech Stack
 
 ### Backend
 - FastAPI
@@ -66,7 +61,8 @@ Tables + Charts
 - Sentence Transformers (bi-encoder embeddings)
 - FAISS (vector similarity search)
 - Cross-encoder reranker
-- Local LLM (TinyLlama / Mistral)
+- Ollama (local LLM server)
+- Qwen2.5-Coder 7B (SQL generation model)
 - Retrieval-Augmented Generation (RAG)
 
 ### Frontend
@@ -76,7 +72,7 @@ Tables + Charts
 
 ---
 
-## 🔥 Core Feature
+## Core Feature
 
 ### Natural Language → SQL
 
@@ -96,22 +92,23 @@ Executed instantly inside DuckDB.
 
 ---
 
-## ✨ Features
+## Features
 
 - CSV + Excel upload
 - automatic schema detection
 - column normalization
 - safe SQL generation (SELECT only)
 - semantic schema retrieval
+- sample data injection into prompts for better accuracy
 - DuckDB OLAP queries (very fast)
 - automatic table rendering
 - automatic chart creation
-- fully local inference
+- fully local inference via Ollama
 - zero cloud dependencies
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 app/        API + ingestion + endpoints
@@ -122,12 +119,27 @@ tests_rag/  model tests
 
 ---
 
-# 🚀 Run Locally
+# Run Locally
+
+## Prerequisites
+
+### Install Ollama
+
+1. Download and install from [ollama.com](https://ollama.com)
+2. Pull the model:
+
+```bash
+ollama pull qwen2.5-coder:7b
+```
+
+Ollama runs as a background service on `http://localhost:11434`. It auto-detects GPU (NVIDIA/AMD) for acceleration.
+
+---
 
 ## 1. Clone the repo
 
 ```bash
-git clone https://github.com/<not-aryan7>/DataPilot.git
+git clone https://github.com/not-aryan7/DataPilot.git
 cd DataPilot
 ```
 
@@ -160,7 +172,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Backend → http://127.0.0.1:8000  
+Backend → http://127.0.0.1:8000
 Docs → http://127.0.0.1:8000/docs
 
 ---
@@ -181,9 +193,10 @@ Frontend → http://localhost:5173
 
 ## 4. Use the app
 
-1. Upload CSV or Excel  
-2. Ask questions in plain English  
-3. Get SQL + tables + charts instantly  
+1. Make sure Ollama is running (it starts automatically after install)
+2. Upload CSV or Excel
+3. Ask questions in plain English
+4. Get SQL + tables + charts instantly
 
 ---
 
@@ -194,20 +207,43 @@ CTRL + C
 deactivate
 ```
 
----
-
-## 🛡 Safety
-
-- SELECT queries only  
-- no DROP / DELETE / UPDATE  
-- runs fully offline  
-- designed for small/medium datasets  
+To stop Ollama, quit it from the system tray.
 
 ---
 
-## 🎯 Why we built this
+## Safety
 
-To practice building complete **end-to-end AI systems** that combine:
+- SELECT queries only
+- no DROP / DELETE / UPDATE
+- runs fully offline
+- designed for small/medium datasets
+
+---
+
+## Switching Models
+
+Ollama makes it easy to swap models. To use a different model:
+
+```bash
+ollama pull mistral
+```
+
+Then change the default in `rag/llm.py`:
+
+```python
+def __init__(self, model_name: str = "mistral"):
+```
+
+Available models that work well for SQL generation:
+- `qwen2.5-coder:7b` (default, best for SQL)
+- `mistral` (good general purpose)
+- `tinyllama` (fastest, less accurate)
+
+---
+
+## Why I built this
+
+To practice building complete end-to-end AI systems that combine:
 
 - backend APIs
 - analytical databases
@@ -215,14 +251,14 @@ To practice building complete **end-to-end AI systems** that combine:
 - LLM pipelines
 - frontend visualization
 
-Instead of cloud tools, everything runs locally for privacy, speed, and zero cost.
+Everything runs locally for privacy, speed, and zero cost.
 
 ---
 
-## 👨‍💻 Authors
+## Authors
 
-**Ayush Neupane**  
-**Aryan RajBhandari**  
+**Ayush Neupane**
+**Aryan RajBhandari**
 
-Computer Science + Economics  
+Computer Science + Economics
 Building applied AI & data engineering systems
