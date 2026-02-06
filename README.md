@@ -8,18 +8,6 @@ Upload a CSV or Excel, ask a question, AI generates SQL, DuckDB executes, result
 
 ---
 
-## What you can ask
-
-- total revenue by year
-- sum of sales by region
-- average price per product
-- what is the height of K2
-- top 5 rows
-- group by month
-- average talk time per agent
-
----
-
 ## How it works
 
 ```
