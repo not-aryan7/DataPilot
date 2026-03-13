@@ -6,7 +6,7 @@ Upload a CSV or Excel, ask a question, AI generates SQL, DuckDB executes, result
 
 **ChatGPT + SQL + DuckDB + Charts** — all running locally. No cloud. No external APIs.
 
----
+
 
 ## How it works
 
