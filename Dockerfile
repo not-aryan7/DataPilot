@@ -9,9 +9,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install slim Python dependencies (no torch/sentence-transformers)
+COPY requirements-deploy.txt .
+RUN pip install --no-cache-dir -r requirements-deploy.txt
 
 # Build frontend
 COPY frontend/package.json frontend/package-lock.json frontend/
@@ -26,9 +26,6 @@ COPY rag/ rag/
 
 # Create data directory
 RUN mkdir -p data/uploads
-
-# ML models (embedder + reranker) download on first request (~160MB)
-# This keeps the image under Railway's 4GB limit
 
 ENV PORT=8000
 

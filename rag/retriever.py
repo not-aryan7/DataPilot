@@ -1,56 +1,43 @@
-from .embed import Embedder
-from .index import VectorIndex
-from .reranker import Reranker
+import os
 
 
 class Retriever:
     """
-    Full retrieval pipeline:
+    Schema retriever.
 
-    embed → FAISS → rerank
+    Cloud mode: passes all schema docs directly (schemas are small,
+    the 70B model handles them easily, no vector search needed).
+
+    Local mode: uses FAISS + cross-encoder for semantic retrieval.
     """
 
     def __init__(self, schema_docs: list[str]):
-        print("[Retriever] Initializing...")
+        self.schema_docs = schema_docs
+        self._use_local = os.environ.get("USE_LOCAL_RAG", "").lower() == "true"
 
-        self.embedder = Embedder()
+        if self._use_local:
+            from .embed import Embedder
+            from .index import VectorIndex
+            from .reranker import Reranker
 
-        # ---- STEP 1: embed all schema once ----
-        embeddings = self.embedder.encode(schema_docs, prefix = "passage")
-
-        # ---- STEP 2: build FAISS index once ----
-        self.index = VectorIndex(embeddings.shape[1])
-        self.index.add(embeddings, schema_docs)
-
-        # ---- STEP 3: cross encoder reranker ----
-        self.reranker = Reranker()
-
-        print("[Retriever] Ready.")
+            print("[Retriever] Initializing local RAG...")
+            self.embedder = Embedder()
+            embeddings = self.embedder.encode(schema_docs, prefix="passage")
+            self.index = VectorIndex(embeddings.shape[1])
+            self.index.add(embeddings, schema_docs)
+            self.reranker = Reranker()
+            print("[Retriever] Ready.")
+        else:
+            print("[Retriever] Using lightweight mode (all schema docs passed to LLM).")
 
     def retrieve(self, question: str, k: int = 10, final_k: int = 3):
-        """
-        question → top relevant schema docs
+        if not self._use_local:
+            return self.schema_docs
 
-        k = candidates from FAISS (fast)
-        final_k = results after reranking (accurate)
-        """
-
-        # ---- embed query ----
-        query_vec = self.embedder.encode(question, prefix = 'query')
-
-        # ---- fast similarity search ----
+        query_vec = self.embedder.encode(question, prefix="query")
         candidates = self.index.search(query_vec, k)
-
-        # ---- smart reranking ----
-      # returns [(doc, score)]
         ranked = self.reranker.rerank(question, candidates, final_k)
 
         MIN_SCORE = 0.2
-
         filtered = [doc for doc, score in ranked if score >= MIN_SCORE]
-
-        # fallback if everything filtered
-        if filtered:
-            return filtered
-        else:
-            return [ranked[0][0]]
+        return filtered if filtered else [ranked[0][0]]
