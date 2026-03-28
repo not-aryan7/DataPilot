@@ -84,53 +84,56 @@ frontend/ – Vite UI, Chart.js visualizations
 tests_rag/ – Unit tests for RAG components  
 
 ---
-
 ## Run Locally
 
-Prerequisites:
-- Python 3.11+  
-- Node.js 18+  
-- Groq API key (https://console.groq.com)  
+### 1. Clone repository
 
----
-
-Clone and setup:
 git clone https://github.com/not-aryan7/DataPilot.git  
+
 cd DataPilot  
 
 ---
 
-Configure environment:
+### 2. Setup environment
 
-Create a .env file in the project root:
+Create virtual environment
+
+python -m venv venv  
+
+Activate environment
+
+Windows → venv\Scripts\activate  
+macOS/Linux → source venv/bin/activate  
+
+Install dependencies
+
+pip install -r requirements.txt  
+
+---
+
+### 3. Configure environment variables
+
+Create a `.env` file in the root directory:
 
 GROQ_API_KEY=your_groq_api_key_here  
 
 ---
 
-Start backend:
+### 4. Run backend
 
-python -m venv venv  
-
-Windows: venv\Scripts\activate  
-macOS/Linux: source venv/bin/activate  
-
-pip install -r requirements.txt  
 uvicorn app.main:app --reload --port 8001  
 
-Backend runs at http://127.0.0.1:8001  
+Backend will run at: http://127.0.0.1:8001  
 
 ---
 
-Start frontend:
+### 5. Run frontend
 
 cd frontend  
 npm install  
 npm run dev  
 
-Frontend runs at http://localhost:5173  
-
----
+Frontend will run at: http://localhost:5173  
 
 ## API Endpoints
 
