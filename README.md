@@ -1,14 +1,12 @@
 # DataPilot
 
-A lightweight, local-first analytics engine that lets you query spreadsheets using plain English.
+A local-first analytics engine that lets you query spreadsheets using plain English.
 
 Upload a CSV or Excel, ask a question, AI generates SQL, DuckDB executes, results show as tables and charts.
 
-**ChatGPT + SQL + DuckDB + Charts** — all running locally. No cloud. No external APIs.
-
 ---
 
-## How it works
+## How It Works
 
 ```
 file → pandas → DuckDB table
@@ -16,158 +14,85 @@ question → embeddings → FAISS → reranker → prompt + sample data → LLM 
 SQL → DuckDB → JSON → table + charts
 ```
 
-Natural language in. SQL + charts out.
-
----
-
-## Architecture
-
-```
-Frontend (Vite + JS)
-        ↓
-FastAPI Backend (REST API)
-        ↓
-RAG SQL Engine (Embeddings + FAISS + Reranker + Ollama LLM)
-        ↓
-Generated SQL
-        ↓
-DuckDB execution
-        ↓
-Tables + Charts
-```
-
 ---
 
 ## Tech Stack
 
-### Backend
-- FastAPI
-- DuckDB
-- Pandas
-
-### AI / ML
-- Sentence Transformers (bi-encoder embeddings)
-- FAISS (vector similarity search)
-- Cross-encoder reranker
-- Ollama (local LLM server)
-- Qwen2.5-Coder 7B (SQL generation model)
-- Retrieval-Augmented Generation (RAG)
-
-### Frontend
-- Vite
-- Vanilla JavaScript
-- Chart.js
-
----
-
-## Core Feature
-
-### Natural Language → SQL
-
-**Input**
-```
-average revenue by region
-```
-
-**Generated automatically**
-```sql
-SELECT region, AVG(revenue)
-FROM sales
-GROUP BY region;
-```
-
-Executed instantly inside DuckDB.
+| Layer | Technology |
+|-------|-----------|
+| Backend | FastAPI, DuckDB, Pandas, SQLite |
+| AI / ML | Sentence Transformers, FAISS, Cross-Encoder Reranker, Ollama, Qwen2.5-Coder |
+| Frontend | Vite, Vanilla JS, Chart.js |
 
 ---
 
 ## Features
 
-- CSV + Excel upload
-- automatic schema detection
-- column normalization
-- safe SQL generation (SELECT only)
-- semantic schema retrieval
-- sample data injection into prompts for better accuracy
-- DuckDB OLAP queries (very fast)
-- automatic table rendering
-- automatic chart creation
-- fully local inference via Ollama
-- zero cloud dependencies
+- CSV and Excel upload with automatic schema detection
+- Column name normalization (SQL-safe snake_case)
+- Natural language to SQL generation via RAG pipeline
+- Safe SQL execution (SELECT only)
+- Semantic schema retrieval with sample data context
+- DuckDB OLAP queries
+- Automatic table and chart rendering
+- Dataset management (list, select, delete)
+- Query history tracking
+- Fully local inference via Ollama
 
 ---
 
 ## Project Structure
 
 ```
-app/        API + ingestion + endpoints
-rag/        embeddings + retriever + SQL generator
-frontend/   UI + charts
-tests_rag/  model tests
+app/          FastAPI backend, API endpoints, ingestion service
+rag/          Embeddings, FAISS index, reranker, prompt builder, LLM client
+frontend/     Vite UI, Chart.js visualizations
+tests_rag/    Unit tests for RAG components
 ```
 
 ---
 
-# Run Locally
+## Run Locally
 
-## Prerequisites
+### Prerequisites
 
-### Install Ollama
+- Python 3.11+
+- Node.js 18+
+- [Ollama](https://ollama.com) installed
 
-1. Download and install from [ollama.com](https://ollama.com)
-2. Pull the model:
-
-```bash
-ollama pull qwen2.5-coder:7b
-```
-
-Ollama runs as a background service on `http://localhost:11434`. It auto-detects GPU (NVIDIA/AMD) for acceleration.
-
----
-
-## 1. Clone the repo
+### 1. Clone and set up
 
 ```bash
 git clone https://github.com/not-aryan7/DataPilot.git
 cd DataPilot
 ```
 
----
+### 2. Pull the model
 
-## 2. Backend (FastAPI + DuckDB)
-
-### Create virtual environment
 ```bash
-python -m venv venv
+ollama pull qwen2.5-coder:3b
 ```
 
-### Activate
+### 3. Start the backend
 
 ```bash
+python -m venv venv
+
 # Windows
 venv\Scripts\activate
 
 # macOS / Linux
 source venv/bin/activate
-```
 
-### Install dependencies
-```bash
 pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8001
 ```
 
-### Start API
-```bash
-uvicorn app.main:app --reload
-```
+Backend runs at `http://127.0.0.1:8001`
 
-Backend → http://127.0.0.1:8000
-Docs → http://127.0.0.1:8000/docs
+### 4. Start the frontend
 
----
-
-## 3. Frontend (Vite)
-
-Open a **new terminal**
+Open a new terminal:
 
 ```bash
 cd frontend
@@ -175,78 +100,36 @@ npm install
 npm run dev
 ```
 
-Frontend → http://localhost:5173
+Frontend runs at `http://localhost:5173`
 
----
+### 5. Use the app
 
-## 4. Use the app
-
-1. Make sure Ollama is running (it starts automatically after install)
-2. Upload CSV or Excel
+1. Open `http://localhost:5173`
+2. Upload a CSV or Excel file
 3. Ask questions in plain English
-4. Get SQL + tables + charts instantly
+4. Get SQL, tables, and charts
 
 ---
 
-## 5. Stop everything
+## API Endpoints
 
-```bash
-CTRL + C
-deactivate
-```
-
-To stop Ollama, quit it from the system tray.
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/datasets` | List all uploaded datasets |
+| POST | `/api/upload` | Upload CSV or Excel file |
+| POST | `/api/ask` | Ask a natural language question |
+| DELETE | `/api/datasets/{id}` | Delete a dataset |
 
 ---
 
 ## Safety
 
-- SELECT queries only
-- no DROP / DELETE / UPDATE
-- runs fully offline
-- designed for small/medium datasets
-
----
-
-## Switching Models
-
-Ollama makes it easy to swap models. To use a different model:
-
-```bash
-ollama pull mistral
-```
-
-Then change the default in `rag/llm.py`:
-
-```python
-def __init__(self, model_name: str = "mistral"):
-```
-
-Available models that work well for SQL generation:
-- `qwen2.5-coder:7b` (default, best for SQL)
-- `mistral` (good general purpose)
-- `tinyllama` (fastest, less accurate)
-
----
-
-## Why I built this
-
-To practice building complete end-to-end AI systems that combine:
-
-- backend APIs
-- analytical databases
-- vector search
-- LLM pipelines
-- frontend visualization
-
-Everything runs locally for privacy, speed, and zero cost.
+- SELECT queries only — no DROP, DELETE, UPDATE
+- Runs fully offline
+- Designed for small to medium datasets
 
 ---
 
 ## Authors
 
-**Ayush Neupane**
-**Aryan RajBhandari**
-
-Computer Science + Economics
-Building applied AI & data engineering systems
+**Ayush Neupane** and **Aryan RajBhandari**

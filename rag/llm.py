@@ -11,7 +11,7 @@ class LocalLLM:
     Sends a prompt and returns generated SQL.
     """
 
-    def __init__(self, model_name: str = "qwen2.5-coder:7b"):
+    def __init__(self, model_name: str = "qwen2.5-coder:3b"):
         self.model = model_name
         self.base_url = "http://localhost:11434"
 
