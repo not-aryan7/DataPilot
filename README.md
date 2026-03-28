@@ -9,138 +9,160 @@
 
 An AI-powered analytics engine that lets you query spreadsheets using plain English.
 
-**Live Demo:** https://datapilot-production-5e68.up.railway.app  
-**GitHub:** https://github.com/not-aryan7/DataPilot  
+Upload a CSV or Excel file, ask a question, and DataPilot generates SQL, executes it on DuckDB, and returns results as tables and charts.
 
----
-
-## Overview
-
-Upload a CSV or Excel file, ask a question, and DataPilot:
-- generates SQL
-- executes it on DuckDB
-- returns results as tables and charts
+Try it live: https://datapilot-production-5e68.up.railway.app  
+GitHub: https://github.com/not-aryan7/DataPilot  
 
 ---
 
 ## How It Works
-File → Pandas → DuckDB
-Query → RAG → LLM → SQL
-SQL → DuckDB → Results → Charts
 
+file → pandas → DuckDB table  
+question → RAG retrieval → LLM generates SQL  
+SQL → DuckDB executes → tables + charts  
 
 ---
 
 ## Architecture
-Frontend (Vite + JS + Chart.js)
-↓
-FastAPI Backend
-↓
-RAG Pipeline (FAISS + Embeddings + Reranker + Groq LLM)
-↓
-SQL Generation
-↓
-DuckDB Execution
-↓
-Tables + Charts
 
+Frontend (Vite + JS + Chart.js)  
+↓  
+FastAPI Backend (REST API)  
+↓  
+RAG Pipeline (Schema Retrieval + Groq LLM)  
+↓  
+SQL Generation  
+↓  
+DuckDB Execution  
+↓  
+Tables + Charts  
 
 ---
 
 ## Tech Stack
 
-| Layer      | Technology |
-|------------|-----------|
-| Backend    | FastAPI, DuckDB, Pandas |
-| AI / ML    | FAISS, Sentence Transformers, Cross-Encoder |
-| LLM        | Groq (Llama 3.3 70B) |
-| Frontend   | Vite, JavaScript, Chart.js |
-| Deployment | Docker, Railway |
+Backend: FastAPI, DuckDB, Pandas, SQLite  
+AI/ML: RAG Pipeline, FAISS, Sentence Transformers, Cross-Encoder Reranker, Groq API (Llama 3.3 70B)  
+Frontend: Vite, Vanilla JS, Chart.js  
+Deployment: Docker, Railway  
 
 ---
 
 ## Features
 
-- CSV + Excel upload  
-- Natural language → SQL  
-- Schema-aware retrieval (RAG)  
-- Sample data injection (better accuracy)  
-- Fast DuckDB queries  
-- Auto charts + tables  
-- SELECT-only safety  
+- CSV and Excel upload with automatic schema detection  
+- Column name normalization to SQL-safe snake_case  
+- Natural language to SQL generation via RAG pipeline  
+- Safe SQL execution (SELECT only)  
+- Sample data injection into prompts for better accuracy  
+- DuckDB OLAP queries  
+- Automatic table and chart rendering  
+- Dataset management (list, select, delete)  
+- Query history tracking  
 
 ---
 
 ## Example
 
-**Input**
+Input: average revenue by region  
 
-average revenue by region
-
-
-**Generated SQL**
-```sql
-SELECT region, AVG(revenue) AS average_revenue
-FROM sales
+Generated SQL:  
+SELECT region, AVG(revenue) AS average_revenue  
+FROM sales  
 GROUP BY region;
-``` 
 
+Executed instantly on DuckDB. Results displayed as a table and auto-generated chart.
 
 ---
+
 ## Project Structure
-app/        FastAPI backend  
-rag/        RAG + SQL generation  
-frontend/   UI + charts  
-tests_rag/  testing  
+
+app/ – FastAPI backend, API endpoints, ingestion service  
+rag/ – RAG pipeline, prompt builder, LLM client  
+frontend/ – Vite UI, Chart.js visualizations  
+tests_rag/ – Unit tests for RAG components  
 
 ---
 
-## Running Locally
+## Run Locally
 
 Prerequisites:
-1. Python 3.11+
-2. Node.js 18+
-3. Groq API key
+- Python 3.11+  
+- Node.js 18+  
+- Groq API key (https://console.groq.com)  
 
 ---
 
-## Clone
+Clone and setup:
+git clone https://github.com/not-aryan7/DataPilot.git  
+cd DataPilot  
 
-## Clone
-
-```bash
-git clone https://github.com/not-aryan7/DataPilot.git
-cd DataPilot
-``` 
 ---
-## Setup
 
-python -m venv venv
+Configure environment:
 
-# Windows
-venv\Scripts\activate
+Create a .env file in the project root:
 
-# macOS / Linux
-source venv/bin/activate
+GROQ_API_KEY=your_groq_api_key_here  
 
-pip install -r requirements.txt
+---
 
-Create .env:
+Start backend:
 
-GROQ_API_KEY=your_api_key
+python -m venv venv  
 
-## Run Backend
+Windows: venv\Scripts\activate  
+macOS/Linux: source venv/bin/activate  
 
-uvicorn app.main:app --reload --port 8001
+pip install -r requirements.txt  
+uvicorn app.main:app --reload --port 8001  
 
-## Run Frontend
-cd frontend
-npm install
-npm run dev
+Backend runs at http://127.0.0.1:8001  
+
+---
+
+Start frontend:
+
+cd frontend  
+npm install  
+npm run dev  
+
+Frontend runs at http://localhost:5173  
+
+---
+
+## API Endpoints
+
+GET    /api/datasets         – List datasets  
+POST   /api/upload           – Upload file  
+POST   /api/ask              – Ask question  
+DELETE /api/datasets/{id}    – Delete dataset  
+
+---
+
+## Deployment
+
+DataPilot is deployed on Railway using Docker.
+
+To deploy your own instance:
+
+- Fork the repository  
+- Sign up at https://railway.app and connect your repo  
+- Add GROQ_API_KEY as an environment variable  
+- Railway auto-detects Dockerfile and deploys  
+
+---
+
+## Safety
+
+- SELECT queries only (no DROP, DELETE, UPDATE)  
+- No data leaves your session  
+- Designed for small to medium datasets  
 
 ---
 
 ## Authors
 
-Ayush Neupane
+Ayush Neupane  
 Aryan RajBhandari
