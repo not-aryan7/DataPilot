@@ -1,5 +1,11 @@
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.api.endpoints import router
 from app.core.database import create_db_and_tables
 
@@ -21,10 +27,11 @@ def on_startup():
 # Include API routes
 app.include_router(router, prefix="/api", tags=["data"])
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to DataPilot API"}
-
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+# Serve frontend static files (built with `npm run build`)
+frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
