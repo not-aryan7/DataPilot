@@ -86,15 +86,9 @@ tests_rag/ – Unit tests for RAG components
 ---
 ## Run Locally
 
-### 1. Clone repository
-
-git clone https://github.com/not-aryan7/DataPilot.git  
-
-cd DataPilot  
-
 ---
 
-### 2. Setup environment
+### 1. Setup environment
 
 Create virtual environment
 
@@ -111,7 +105,7 @@ pip install -r requirements.txt
 
 ---
 
-### 3. Configure environment variables
+### 2. Configure environment variables
 
 Create a `.env` file in the root directory:
 
@@ -119,7 +113,7 @@ GROQ_API_KEY=your_groq_api_key_here
 
 ---
 
-### 4. Run backend
+### 3. Run backend
 
 uvicorn app.main:app --reload --port 8001  
 
@@ -127,7 +121,7 @@ Backend will run at: http://127.0.0.1:8001
 
 ---
 
-### 5. Run frontend
+### 4. Run frontend
 
 cd frontend  
 npm install  
