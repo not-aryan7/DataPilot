@@ -1,147 +1,128 @@
 # DataPilot
 
-A lightweight, local-first analytics engine that lets you query spreadsheets using plain English.
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-backend-green)
+![DuckDB](https://img.shields.io/badge/DuckDB-analytics-orange)
+![FAISS](https://img.shields.io/badge/FAISS-vector%20search-yellow)
+![Groq](https://img.shields.io/badge/Groq-LLM-purple)
+![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
-Upload a CSV or Excel, ask a question, AI generates SQL, DuckDB executes, results show as tables and charts.
+An AI-powered analytics engine that lets you query spreadsheets using plain English.
 
-**ChatGPT + SQL + DuckDB + Charts** — all running locally. No cloud. No external APIs.
+Upload a CSV or Excel file, ask a question, and DataPilot generates SQL, executes it on DuckDB, and returns results as tables and charts instantly.
+
+**Live Demo:** https://datapilot-production-5e68.up.railway.app  
+**GitHub:** https://github.com/not-aryan7/DataPilot  
 
 ---
 
-## How it works
+## Overview
 
-```
-file → pandas → DuckDB table
-question → embeddings → FAISS → reranker → prompt + sample data → LLM → SQL
-SQL → DuckDB → JSON → table + charts
-```
+DataPilot enables natural language querying over structured data without requiring SQL knowledge.
 
-Natural language in. SQL + charts out.
+Users can simply ask:
+
+> What is the average revenue by region?
+
+The system automatically:
+- understands the query
+- retrieves relevant schema context
+- generates optimized SQL
+- executes it on DuckDB
+- returns results with visualizations
+
+---
+
+## How It Works
+File Upload → Pandas → DuckDB Table
+User Query → RAG Retrieval → LLM (Groq) → SQL Generation
+SQL → DuckDB Execution → Results → Tables + Charts
+
 
 ---
 
 ## Architecture
-
-```
-Frontend (Vite + JS)
-        ↓
+Frontend (Vite + JS + Chart.js)
+↓
 FastAPI Backend (REST API)
-        ↓
-RAG SQL Engine (Embeddings + FAISS + Reranker + Ollama LLM)
-        ↓
+↓
+RAG Pipeline (FAISS + Embeddings + Reranker + Groq LLM)
+↓
 Generated SQL
-        ↓
-DuckDB execution
-        ↓
+↓
+DuckDB Execution
+↓
 Tables + Charts
-```
+
 
 ---
 
 ## Tech Stack
 
-### Backend
-- FastAPI
-- DuckDB
-- Pandas
-
-### AI / ML
-- Sentence Transformers (bi-encoder embeddings)
-- FAISS (vector similarity search)
-- Cross-encoder reranker
-- Ollama (local LLM server)
-- Qwen2.5-Coder 7B (SQL generation model)
-- Retrieval-Augmented Generation (RAG)
-
-### Frontend
-- Vite
-- Vanilla JavaScript
-- Chart.js
-
----
-
-## Core Feature
-
-### Natural Language → SQL
-
-**Input**
-```
-average revenue by region
-```
-
-**Generated automatically**
-```sql
-SELECT region, AVG(revenue)
-FROM sales
-GROUP BY region;
-```
-
-Executed instantly inside DuckDB.
+| Layer      | Technology |
+|------------|-----------|
+| Backend    | FastAPI, DuckDB, Pandas |
+| AI / ML    | FAISS, Sentence Transformers, Cross-Encoder Reranker, RAG Pipeline |
+| LLM        | Groq API (Llama 3.3 70B) |
+| Frontend   | Vite, Vanilla JavaScript, Chart.js |
+| Deployment | Docker, Railway |
 
 ---
 
 ## Features
 
-- CSV + Excel upload
-- automatic schema detection
-- column normalization
-- safe SQL generation (SELECT only)
-- semantic schema retrieval
-- sample data injection into prompts for better accuracy
-- DuckDB OLAP queries (very fast)
-- automatic table rendering
-- automatic chart creation
-- fully local inference via Ollama
-- zero cloud dependencies
+- CSV and Excel upload with automatic schema detection  
+- Column normalization to SQL-safe formats  
+- Natural language to SQL generation using RAG  
+- Semantic schema retrieval for accurate queries  
+- Sample data injection into prompts for improved SQL accuracy  
+- DuckDB OLAP query execution (millisecond latency)  
+- Automatic table rendering and chart generation  
+- Dataset management (upload, list, delete)  
+- Query history tracking  
+- Safe execution (SELECT-only queries)  
 
 ---
 
-## Project Structure
+## Example
 
-```
-app/        API + ingestion + endpoints
-rag/        embeddings + retriever + SQL generator
-frontend/   UI + charts
-tests_rag/  model tests
-```
+**Input**
+average revenue by region
 
----
 
-# Run Locally
+**Generated SQL**
+```sql
+SELECT region, AVG(revenue) AS average_revenue
+FROM sales
+GROUP BY region;
 
-## Prerequisites
+Executed instantly in DuckDB with results rendered as tables and charts.
 
-### Install Ollama
+Project Structure
+app/          FastAPI backend, ingestion, API endpoints  
+rag/          RAG pipeline, retriever, SQL generation  
+frontend/     UI and chart rendering  
+tests_rag/    RAG evaluation and testing  
 
-1. Download and install from [ollama.com](https://ollama.com)
-2. Pull the model:
+Running Locally
+Prerequisites
+Python 3.11+
+Node.js 18+
+Groq API key (https://console.groq.com)
 
-```bash
-ollama pull qwen2.5-coder:7b
-```
+1. Clone Repository
 
-Ollama runs as a background service on `http://localhost:11434`. It auto-detects GPU (NVIDIA/AMD) for acceleration.
-
----
-
-## 1. Clone the repo
-
-```bash
 git clone https://github.com/not-aryan7/DataPilot.git
 cd DataPilot
 
----
+2. Configure Environment
 
-## 2. Backend (FastAPI + DuckDB)
+Create a .env file in the root:
+GROQ_API_KEY=your_api_key_here
 
-### Create virtual environment
-```bash
+3. Start Backend
 python -m venv venv
-```
 
-### Activate
-
-```bash
 # Windows
 venv\Scripts\activate
 
@@ -149,99 +130,51 @@ venv\Scripts\activate
 source venv/bin/activate
 
 pip install -r requirements.txt
-```
+uvicorn app.main:app --reload --port 8001
 
-### Start API
-```bash
-uvicorn app.main:app --reload
-```
+Backend runs at: http://127.0.0.1:8001
 
-Backend → http://127.0.0.1:8000
-Docs → http://127.0.0.1:8000/docs
+4. Start Frontend
 
----
-
-## 3. Frontend (Vite)
-
-Open a **new terminal**
-
-```bash
 cd frontend
 npm install
 npm run dev
 
-Frontend → http://localhost:5173
+Frontend runs at: http://localhost:5173
 
----
+5. Use the App
+Open the frontend
+Upload a CSV or Excel file
+Ask questions in plain English
+Get SQL, tables, and charts instantly
 
-## 4. Use the app
+API Endpoints
+Method	Route	Description
+GET	/api/datasets	List datasets
+POST	/api/upload	Upload dataset
+POST	/api/ask	Ask a query
+DELETE	/api/datasets/{id}	Delete dataset
 
-1. Make sure Ollama is running (it starts automatically after install)
-2. Upload CSV or Excel
-3. Ask questions in plain English
-4. Get SQL + tables + charts instantly
+Deployment
 
----
+DataPilot is deployed on Railway using Docker.
 
-## 5. Stop everything
+To deploy your own instance:
 
-```bash
-CTRL + C
-deactivate
-```
+Fork the repository
+Connect it to Railway (https://railway.app
+)
+Add GROQ_API_KEY as an environment variable
+Deploy using Docker
+Safety
+Only SELECT queries are allowed
+No DROP, DELETE, or UPDATE operations
+Data remains within the session
+Designed for small to medium datasets
+Authors
 
-To stop Ollama, quit it from the system tray.
-
----
-
-## Safety
-
-- SELECT queries only
-- no DROP / DELETE / UPDATE
-- runs fully offline
-- designed for small/medium datasets
-
----
-
-## Switching Models
-
-Ollama makes it easy to swap models. To use a different model:
-
-```bash
-ollama pull mistral
-```
-
-Then change the default in `rag/llm.py`:
-
-```python
-def __init__(self, model_name: str = "mistral"):
-```
-
-Available models that work well for SQL generation:
-- `qwen2.5-coder:7b` (default, best for SQL)
-- `mistral` (good general purpose)
-- `tinyllama` (fastest, less accurate)
-
----
-
-## Why I built this
-
-To practice building complete end-to-end AI systems that combine:
-
-- backend APIs
-- analytical databases
-- vector search
-- LLM pipelines
-- frontend visualization
-
-Everything runs locally for privacy, speed, and zero cost.
-
----
-
-## Authors
-
-**Ayush Neupane**
-**Aryan RajBhandari**
+Ayush Neupane
+Aryan RajBhandari
 
 Computer Science + Economics
-Building applied AI & data engineering systems
+Building applied AI systems, RAG pipelines, and data-driven products
