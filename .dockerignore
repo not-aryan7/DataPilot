@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.pyc
+.env
+*.db
+*.duckdb
+data/uploads/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+.git/
+.gitignore
+tests_rag/
+*.pt
+*.bin
+*.safetensors
+*.faiss
